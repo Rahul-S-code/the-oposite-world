@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Opposite World</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@600;800&display=swap">
+<style>
+/* Layout: an open picture book on a dark forest-green table. Picture on the left page, words on the right; one page at a time on phones. Single deliberate look in both themes. */
+:root{
+  --table:#183128;
+  --table-2:#24463a;
+  --paper:#fdf8ec;
+  --ink:#2a2233;
+  --ink-soft:#6c6275;
+  --ladybird:#d8402f;
+  --gold:#e8b23a;
+  --leaf-blue:#2f6fd0;
+  --cover:#1d3570;
+  --on-dark:#fbf3dc;
+  --display:"Grandstander","Comic Sans MS","Trebuchet MS",sans-serif;
+  --body:"Andika","Trebuchet MS","Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{
+  margin:0;background:radial-gradient(120% 90% at 50% 40%,var(--table-2),var(--table) 70%);
+  color:var(--on-dark);font-family:var(--body);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  box-sizing:border-box;
+}
+.app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding-block:12px;box-sizing:border-box}
+.stage{position:relative;display:flex;justify-content:center;width:100%}
+.book{position:relative;perspective:2400px;transition:transform .9s cubic-bezier(.645,.045,.355,1);touch-action:pan-y;cursor:pointer;-webkit-user-select:none;user-select:none}
+.book.single{overflow:hidden;border-radius:6px}
+.sheet{position:absolute;top:0;width:var(--pw);height:var(--ph);transform-origin:left center;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.645,.045,.355,1)}
+.book.spread .sheet{left:var(--pw)}
+.book.single .sheet{left:0}
+.sheet.flipped{transform:rotateY(-180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--paper);color:var(--ink);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.face.front{border-radius:0 6px 6px 0}
+.face.back{transform:rotateY(180deg);border-radius:6px 0 0 6px}
+.book.single .face{border-radius:6px}
+.face::after{content:"";position:absolute;inset:0;pointer-events:none}
+.face.front::after{background:linear-gradient(90deg,rgba(60,40,20,.18),rgba(60,40,20,0) 7%)}
+.face.back::after{background:linear-gradient(270deg,rgba(60,40,20,.18),rgba(60,40,20,0) 7%)}
+.book.single .face::after{background:linear-gradient(90deg,rgba(60,40,20,.12),rgba(60,40,20,0) 4%)}
+.face.blank{background:var(--paper)}
+
+/* picture pages */
+.pic{position:absolute;inset:4.5%;border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 3px rgba(42,34,51,.12)}
+.pic svg{width:100%;height:100%;display:block}
+
+/* words pages */
+.txt{position:absolute;inset:0;container-type:size;display:flex;flex-direction:column;padding:11% 11% 13%;box-sizing:border-box}
+.words{flex:1;display:flex;flex-direction:column;justify-content:center;gap:.75em;font-size:var(--fs,22px);line-height:1.5;min-height:0}
+.words p{margin:0;text-wrap:pretty}
+.words p.first::first-letter{font-family:var(--display);font-weight:800;color:var(--ladybird);float:left;font-size:3.1em;line-height:.9;margin:.06em .1em 0 0}
+.folio{position:absolute;left:0;right:0;bottom:5%;text-align:center;font-family:var(--display);font-weight:600;color:var(--ink-soft);font-size:clamp(12px,3.4cqw,18px);letter-spacing:.06em}
+.folio::before,.folio::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);vertical-align:middle;margin:0 .6em}
+
+/* cover & end */
+.cover{background:var(--cover);color:var(--on-dark);container-type:size;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9% 8% 8%;box-sizing:border-box;text-align:center}
+.cover::before{content:"";position:absolute;inset:3.5%;border:2px solid var(--gold);border-radius:10px;opacity:.7;pointer-events:none}
+.cover h1{margin:0;font-family:var(--display);font-weight:800;font-size:12.5cqw;line-height:.98;color:#ffd84a;text-wrap:balance;text-shadow:0 3px 0 #0e1d44}
+.cover .by{font-family:var(--display);font-weight:600;font-size:6.5cqw;color:var(--on-dark)}
+.cover .art{width:100%;flex:1;min-height:0;display:flex;align-items:center}
+.cover .art svg{width:100%;height:100%}
+.end{background:var(--paper);container-type:size;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4cqh;text-align:center}
+.end h2{margin:0;font-family:var(--display);font-weight:800;font-size:15cqw;color:var(--ladybird)}
+.end .art{width:46cqw;height:46cqw}
+.end p{margin:0;font-family:var(--display);font-weight:600;color:var(--ink-soft);font-size:5cqw}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:14px}
+.controls button{appearance:none;border:0;background:var(--gold);color:#3a2608;font-family:var(--display);font-weight:800;font-size:16px;border-radius:999px;padding:10px 18px;cursor:pointer;box-shadow:0 3px 0 #a87a14}
+.controls button:disabled{opacity:.35;cursor:default}
+.controls button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.controls button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #a87a14}
+.label{font-family:var(--display);font-weight:600;min-width:9.5em;text-align:center;font-size:15px;color:var(--on-dark)}
+.hint{font-size:13px;color:rgba(251,243,220,.6);margin:0}
+@media (prefers-reduced-motion:reduce){.sheet,.book{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <radialGradient id="glow"><stop offset="0" stop-color="#fff6b0" stop-opacity=".95"/><stop offset=".38" stop-color="#8fd8ff" stop-opacity=".6"/><stop offset="1" stop-color="#8fd8ff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="leafg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f5fd0"/><stop offset=".5" stop-color="#3d9cff"/><stop offset="1" stop-color="#f2c230"/></linearGradient>
+  <radialGradient id="fireglow"><stop offset="0" stop-color="#ffb347" stop-opacity=".75"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="bugglow"><stop offset="0" stop-color="#fffbb0"/><stop offset=".35" stop-color="#e9ff6a" stop-opacity=".8"/><stop offset="1" stop-color="#d4ff4a" stop-opacity="0"/></radialGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121c45"/><stop offset="1" stop-color="#3d5293"/></linearGradient>
+  <linearGradient id="day" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd2f2"/><stop offset="1" stop-color="#eaf7dc"/></linearGradient>
+  <radialGradient id="magic" cx=".5" cy=".55" r=".75"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#b58cf0"/><stop offset="1" stop-color="#43277f"/></radialGradient>
+  <linearGradient id="room" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3dcaa"/><stop offset="1" stop-color="#e6c286"/></linearGradient>
+
+  <symbol id="spark" viewBox="-10 -10 20 20"><path d="M0-10L2.6-2.6 10 0 2.6 2.6 0 10-2.6 2.6-10 0-2.6-2.6Z"/></symbol>
+
+  <symbol id="leaf" viewBox="-50 -50 100 100">
+    <circle r="49" fill="url(#glow)"/>
+    <path d="M0-34C22-22 24 16 0 34C-24 16-22-22 0-34Z" fill="url(#leafg)" stroke="#f6d35b" stroke-width="2.5"/>
+    <path d="M0-30V40M0-12L-11-20M0-12L11-20M0 4L-14-6M0 4L14-6M0 18L-10 10M0 18L10 10" stroke="#ffe27a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="pine" viewBox="0 0 60 120"><rect x="26" y="96" width="8" height="24" fill="#3f2818"/><path d="M30 0L52 40H8ZM30 22L56 70H4ZM30 46L60 100H0Z" fill="#183f2d"/></symbol>
+
+  <symbol id="tree" viewBox="0 0 120 180"><rect x="52" y="100" width="16" height="80" rx="4" fill="#7a4b2a"/><circle cx="60" cy="62" r="44" fill="#4fa356"/><circle cx="30" cy="88" r="30" fill="#5cb563"/><circle cx="90" cy="88" r="30" fill="#45964d"/><circle cx="60" cy="40" r="28" fill="#66bf6b"/></symbol>
+
+  <!-- Max the boy -->
+  <symbol id="max" viewBox="0 0 100 170">
+    <rect x="38" y="118" width="11" height="42" rx="4" fill="#3b5ea8"/><rect x="52" y="118" width="11" height="42" rx="4" fill="#3b5ea8"/>
+    <ellipse cx="42" cy="162" rx="10" ry="5" fill="#4a2c1a"/><ellipse cx="59" cy="162" rx="10" ry="5" fill="#4a2c1a"/>
+    <path d="M32 80L22 110M68 80L78 110" stroke="#e8692e" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="21" cy="113" r="6" fill="#f3c6a0"/><circle cx="79" cy="113" r="6" fill="#f3c6a0"/>
+    <path d="M30 82Q30 70 41 68L59 68Q70 70 70 82L72 126L28 126Z" fill="#e8692e"/>
+    <path d="M42 68Q50 78 58 68" fill="none" stroke="#c4501d" stroke-width="3"/>
+    <rect x="40" y="98" width="20" height="10" rx="4" fill="#c4501d"/>
+    <circle cx="50" cy="44" r="24" fill="#f3c6a0"/>
+    <path d="M26 44Q24 18 50 18Q77 18 74 44Q70 31 60 33Q53 26 45 33Q35 29 26 44Z" fill="#6b3e1f"/>
+    <circle cx="42" cy="47" r="3.2" fill="#2a1a10"/><circle cx="58" cy="47" r="3.2" fill="#2a1a10"/>
+    <circle cx="36" cy="55" r="3.5" fill="#f29a8a" opacity=".6"/><circle cx="64" cy="55" r="3.5" fill="#f29a8a" opacity=".6"/>
+    <path d="M43 56Q50 63 57 56" fill="none" stroke="#7a3b22" stroke-width="2.5" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Dad -->
+  <symbol id="dad" viewBox="0 0 100 200">
+    <rect x="36" y="134" width="12" height="56" rx="4" fill="#3d4a5c"/><rect x="52" y="134" width="12" height="56" rx="4" fill="#3d4a5c"/>
+    <ellipse cx="41" cy="192" rx="11" ry="6" fill="#3a2414"/><ellipse cx="59" cy="192" rx="11" ry="6" fill="#3a2414"/>
+    <path d="M29 80L19 126M71 80L81 126" stroke="#3f8f5a" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="18" cy="130" r="6.5" fill="#e9b48c"/><circle cx="82" cy="130" r="6.5" fill="#e9b48c"/>
+    <path d="M26 82Q26 70 38 68L62 68Q74 70 74 82L76 140L24 140Z" fill="#3f8f5a"/>
+    <path d="M26 98H74M26 116H75M42 68V140M58 68V140" stroke="#2f7347" stroke-width="2" opacity=".7"/>
+    <circle cx="50" cy="42" r="22" fill="#e9b48c"/>
+    <path d="M28 40Q28 18 50 18Q72 18 72 40Q66 28 50 28Q34 28 28 40Z" fill="#3a2414"/>
+    <path d="M29 44Q31 68 50 68Q69 68 71 44Q65 56 50 56Q35 56 29 44Z" fill="#3a2414"/>
+    <circle cx="42" cy="44" r="3" fill="#20140b"/><circle cx="58" cy="44" r="3" fill="#20140b"/>
+    <path d="M44 58Q50 62 56 58" fill="none" stroke="#f3d2b5" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Mum -->
+  <symbol id="mum" viewBox="0 0 100 190">
+    <path d="M24 46Q22 14 50 14Q78 14 76 46L80 92Q50 98 20 92Z" fill="#a0522d"/>
+    <rect x="38" y="136" width="11" height="44" rx="4" fill="#2f3b66"/><rect x="52" y="136" width="11" height="44" rx="4" fill="#2f3b66"/>
+    <ellipse cx="42" cy="182" rx="10" ry="5" fill="#5a2a3a"/><ellipse cx="59" cy="182" rx="10" ry="5" fill="#5a2a3a"/>
+    <path d="M31 80L22 120M69 80L78 120" stroke="#8e5bc4" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="21" cy="123" r="6" fill="#f0c09a"/><circle cx="79" cy="123" r="6" fill="#f0c09a"/>
+    <path d="M28 82Q28 70 40 68L60 68Q72 70 72 82L80 142L20 142Z" fill="#8e5bc4"/>
+    <circle cx="50" cy="42" r="21" fill="#f0c09a"/>
+    <path d="M29 40Q32 20 52 21Q69 22 71 40Q60 28 50 30Q38 30 29 40Z" fill="#a0522d"/>
+    <circle cx="42" cy="45" r="3" fill="#2a1a10"/><circle cx="58" cy="45" r="3" fill="#2a1a10"/>
+    <circle cx="37" cy="52" r="3.2" fill="#f29a8a" opacity=".6"/><circle cx="63" cy="52" r="3.2" fill="#f29a8a" opacity=".6"/>
+    <path d="M44 53Q50 59 56 53" fill="none" stroke="#8a3b2a" stroke-width="2.3" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Max as a dragonfly (faces right) -->
+  <symbol id="dfly" viewBox="0 0 220 150">
+    <g fill="#d6f3ff" fill-opacity=".72" stroke="#5fb3d9" stroke-width="2">
+      <ellipse cx="115" cy="24" rx="13" ry="46" transform="rotate(-62 115 70)"/>
+      <ellipse cx="115" cy="24" rx="13" ry="46" transform="rotate(-28 115 70)"/>
+      <ellipse cx="115" cy="30" rx="11" ry="40" transform="rotate(12 115 70)"/>
+      <ellipse cx="115" cy="30" rx="11" ry="40" transform="rotate(42 115 70)"/>
+    </g>
+    <g stroke="#9fd6ee" stroke-width="1.2" fill="none" opacity=".9">
+      <path d="M115 70L77 47M115 70L93 30M115 70L124 32M115 70L141 42"/>
+    </g>
+    <g stroke="#183d3c" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M108 88L100 106L92 116M101 104L95 101"/>
+      <path d="M118 92L116 111L110 123M116 109L110 107"/>
+      <path d="M128 88L134 106L142 114M133 104L139 100"/>
+    </g>
+    <g stroke="#155e5a" stroke-width="1.5">
+      <circle cx="14" cy="72" r="5" fill="#1f8fa5"/>
+      <circle cx="22" cy="76" r="6" fill="#2bb07a"/>
+      <circle cx="32" cy="79" r="7" fill="#1f8fa5"/>
+      <circle cx="43" cy="81" r="8" fill="#2bb07a"/>
+      <circle cx="55" cy="82" r="9" fill="#1f8fa5"/>
+      <circle cx="68" cy="82" r="10" fill="#2bb07a"/>
+      <circle cx="82" cy="81" r="11" fill="#1f8fa5"/>
+      <circle cx="96" cy="80" r="12" fill="#2bb07a"/>
+    </g>
+    <g stroke="#c4f5de" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".85">
+      <path d="M92 78q4 4 8 0M78 79q4 4 8 0M64 80q4 4 8 0M51 80q4 3 8 0M39 79q4 3 7 0M29 77q3 3 6 0"/>
+    </g>
+    <ellipse cx="118" cy="78" rx="22" ry="17" fill="#1f8fa5" stroke="#155e5a" stroke-width="2"/>
+    <path d="M108 74q5 5 10 0M120 74q5 5 10 0M113 84q5 5 10 0" stroke="#c4f5de" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <circle cx="152" cy="74" r="19" fill="#2bb07a" stroke="#155e5a" stroke-width="2"/>
+    <path d="M136 62Q133 46 146 45Q145 51 151 51Q151 41 162 43Q156 49 159 58Z" fill="#6b3e1f"/>
+    <circle cx="150" cy="60" r="14" fill="#fff" stroke="#183d3c" stroke-width="2"/>
+    <circle cx="172" cy="64" r="12" fill="#fff" stroke="#183d3c" stroke-width="2"/>
+    <circle cx="154" cy="62" r="6.2" fill="#1b1b1b"/><circle cx="175.5" cy="66" r="5.5" fill="#1b1b1b"/>
+    <circle cx="156" cy="59.5" r="2" fill="#fff"/><circle cx="177.5" cy="63.5" r="1.8" fill="#fff"/>
+    <path d="M150 83Q160 91 170 81" stroke="#183d3c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <circle cx="167" cy="85" r="3.5" fill="#ff9a9a" opacity=".7"/>
+  </symbol>
+
+  <!-- The Bug King: a ladybird in a red vest, blue shirt and green pants -->
+  <symbol id="king" viewBox="0 0 140 210">
+    <ellipse cx="70" cy="118" rx="50" ry="56" fill="#b8231f"/>
+    <path d="M70 64V172" stroke="#1f1f24" stroke-width="3"/>
+    <g fill="#1f1f24"><circle cx="38" cy="100" r="7"/><circle cx="102" cy="100" r="7"/><circle cx="31" cy="134" r="6"/><circle cx="109" cy="134" r="6"/><circle cx="44" cy="162" r="5"/><circle cx="96" cy="162" r="5"/></g>
+    <rect x="50" y="148" width="16" height="44" rx="5" fill="#3e9a4a"/><rect x="74" y="148" width="16" height="44" rx="5" fill="#3e9a4a"/>
+    <ellipse cx="56" cy="194" rx="12" ry="6" fill="#1f1f24"/><ellipse cx="86" cy="194" rx="12" ry="6" fill="#1f1f24"/>
+    <path d="M47 98L29 128M93 98L111 128" stroke="#3c74d6" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="27" cy="131" r="7" fill="#1f1f24"/><circle cx="113" cy="131" r="7" fill="#1f1f24"/>
+    <rect x="44" y="88" width="52" height="68" rx="14" fill="#3c74d6"/>
+    <path d="M44 102Q44 88 58 88L64 88L60 156L44 156Z" fill="#e23b2e"/>
+    <path d="M96 102Q96 88 82 88L76 88L80 156L96 156Z" fill="#e23b2e"/>
+    <g fill="#f2c230"><circle cx="57" cy="108" r="2.6"/><circle cx="56" cy="128" r="2.6"/><circle cx="83" cy="108" r="2.6"/><circle cx="84" cy="128" r="2.6"/></g>
+    <path d="M56 36Q48 18 42 13M84 36Q92 18 98 13" stroke="#1f1f24" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="42" cy="13" r="4.5" fill="#1f1f24"/><circle cx="98" cy="13" r="4.5" fill="#1f1f24"/>
+    <circle cx="70" cy="60" r="28" fill="#1f1f24"/>
+    <circle cx="60" cy="57" r="8.5" fill="#fff"/><circle cx="80" cy="57" r="8.5" fill="#fff"/>
+    <circle cx="61" cy="59" r="4.2" fill="#1f1f24"/><circle cx="81" cy="59" r="4.2" fill="#1f1f24"/>
+    <circle cx="62.5" cy="57" r="1.5" fill="#fff"/><circle cx="82.5" cy="57" r="1.5" fill="#fff"/>
+    <circle cx="51" cy="70" r="3.5" fill="#ff8a8a" opacity=".85"/><circle cx="89" cy="70" r="3.5" fill="#ff8a8a" opacity=".85"/>
+    <path d="M61 72Q70 80 79 72" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M50 38L52 17L60 28L70 10L80 28L88 17L90 38Z" fill="#f2c230" stroke="#c9951a" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="70" cy="31" r="3.2" fill="#d8402f"/><circle cx="58" cy="33" r="2.4" fill="#3c74d6"/><circle cx="82" cy="33" r="2.4" fill="#3c74d6"/>
+  </symbol>
+</defs>
+</svg>
+
+<!-- 1: the campfire -->
+<template id="scene1">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Max and his family having dinner around a campfire at night, next to their tent">
+  <rect width="400" height="500" fill="url(#night)"/>
+  <circle cx="320" cy="78" r="26" fill="#fff1b8"/><circle cx="312" cy="72" r="5" fill="#f1dd92"/><circle cx="328" cy="88" r="4" fill="#f1dd92"/>
+  <g fill="#fff6c8"><use href="#spark" x="40" y="40" width="20" height="20"/><use href="#spark" x="115" y="88" width="13" height="13"/><use href="#spark" x="195" y="34" width="18" height="18"/><use href="#spark" x="250" y="120" width="11" height="11"/><use href="#spark" x="365" y="150" width="13" height="13"/><use href="#spark" x="70" y="150" width="11" height="11"/><use href="#spark" x="160" y="140" width="9" height="9"/></g>
+  <use href="#pine" x="-14" y="200" width="70" height="140"/><use href="#pine" x="36" y="178" width="80" height="160"/>
+  <use href="#pine" x="300" y="206" width="66" height="132"/><use href="#pine" x="342" y="176" width="80" height="160"/>
+  <path d="M0 330Q200 300 400 330V500H0Z" fill="#2c5a3b"/>
+  <path d="M0 450Q200 428 400 452V500H0Z" fill="#234a30"/>
+  <path d="M262 362L322 246L394 362Z" fill="#e8973a" stroke="#b8691d" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M312 362L322 288L335 362Z" fill="#7a4a18"/>
+  <path d="M262 362L246 372M394 362L404 374" stroke="#d9c49a" stroke-width="2"/>
+  <circle cx="200" cy="378" r="120" fill="url(#fireglow)"/>
+  <rect x="165" y="384" width="72" height="13" rx="6" fill="#6e4425" transform="rotate(-14 200 391)"/>
+  <rect x="165" y="384" width="72" height="13" rx="6" fill="#80512c" transform="rotate(14 200 391)"/>
+  <path d="M200 298C224 330 234 352 221 378C214 391 186 391 179 378C166 352 182 330 200 298Z" fill="#ff7a1a"/>
+  <path d="M186 330C194 346 192 360 186 372C178 360 178 344 186 330Z" fill="#ff9d2e"/>
+  <path d="M200 330C212 348 216 362 210 378C206 386 194 386 190 378C184 362 190 348 200 330Z" fill="#ffd23f"/>
+  <use href="#mum" x="-6" y="262" width="84" height="160"/>
+  <use href="#dad" x="52" y="244" width="92" height="184"/>
+  <rect x="112" y="432" width="48" height="30" rx="4" fill="#7a4b2a"/><ellipse cx="136" cy="432" rx="24" ry="7" fill="#a8774a"/>
+  <ellipse cx="136" cy="426" rx="19" ry="5.5" fill="#e0a052"/>
+  <rect x="118" y="415" width="36" height="9" rx="4" fill="#6b3a1e"/>
+  <path d="M116 416L156 416L150 422L140 418L130 423L122 418Z" fill="#ffcf3a"/>
+  <path d="M116 414q5-4 10 0t10 0t10 0t10 0" stroke="#5cb85c" stroke-width="3" fill="none"/>
+  <path d="M117 412Q136 390 155 412Z" fill="#e9a94f"/>
+  <g fill="#fff6dd"><circle cx="130" cy="402" r="1.3"/><circle cx="137" cy="399" r="1.3"/><circle cx="144" cy="403" r="1.3"/></g>
+  <use href="#max" x="244" y="300" width="80" height="136"/>
+  <path d="M261 390L222 343" stroke="#8b6239" stroke-width="3" stroke-linecap="round"/>
+  <rect x="219" y="330" width="12" height="11" rx="3" fill="#ffb6cf" transform="rotate(-50 225 335)"/>
+  <rect x="211" y="320" width="12" height="11" rx="3" fill="#ffffff" transform="rotate(-50 217 325)"/>
+</svg>
+</template>
+
+<!-- 2: the glowing leaf -->
+<template id="scene2">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Max in the morning forest spotting a glowing blue and gold leaf on the ground">
+  <rect width="400" height="500" fill="url(#day)"/>
+  <circle cx="74" cy="72" r="34" fill="#ffd84a"/><circle cx="74" cy="72" r="46" fill="#ffd84a" opacity=".25"/>
+  <use href="#tree" x="160" y="180" width="110" height="165"/>
+  <use href="#tree" x="-30" y="150" width="150" height="225"/>
+  <use href="#tree" x="276" y="130" width="160" height="240"/>
+  <path d="M0 362Q200 336 400 362V500H0Z" fill="#7cc46b"/>
+  <path d="M0 430Q120 412 260 432T400 426V500H0Z" fill="#6bb75c"/>
+  <g fill="#fff"><circle cx="40" cy="455" r="4"/><circle cx="350" cy="470" r="4"/><circle cx="180" cy="480" r="4"/></g>
+  <g fill="#ffd84a"><circle cx="40" cy="455" r="1.8"/><circle cx="350" cy="470" r="1.8"/><circle cx="180" cy="480" r="1.8"/></g>
+  <rect x="340" y="410" width="10" height="20" rx="3" fill="#f5ead2"/><path d="M326 414Q345 384 364 414Z" fill="#e0453a"/>
+  <g fill="#fff"><circle cx="338" cy="405" r="2.4"/><circle cx="350" cy="400" r="2"/><circle cx="356" cy="409" r="2"/></g>
+  <use href="#max" x="52" y="288" width="112" height="190"/>
+  <path d="M152 300l12-10M158 314l15-3M150 288l6-14" stroke="#e8692e" stroke-width="3" stroke-linecap="round"/>
+  <g transform="rotate(28 278 418)"><use href="#leaf" x="208" y="348" width="140" height="140"/></g>
+  <g fill="#ffd84a"><use href="#spark" x="230" y="352" width="18" height="18"/><use href="#spark" x="318" y="370" width="14" height="14"/><use href="#spark" x="300" y="452" width="12" height="12"/><use href="#spark" x="244" y="460" width="10" height="10"/></g>
+</svg>
+</template>
+
+<!-- 3: Max becomes a dragonfly -->
+<template id="scene3">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Max transformed into a dragonfly with spiky legs, big googly eyes and a scaly body, flying">
+  <rect width="400" height="500" fill="url(#magic)"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="3" stroke-dasharray="6 12"><circle cx="200" cy="260" r="175"/><circle cx="200" cy="260" r="130"/><circle cx="200" cy="260" r="88"/></g>
+  <g fill="#fff" opacity=".85"><ellipse cx="70" cy="452" rx="70" ry="24"/><ellipse cx="120" cy="440" rx="44" ry="26"/><ellipse cx="330" cy="462" rx="80" ry="24"/><ellipse cx="290" cy="448" rx="40" ry="24"/></g>
+  <g stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"><path d="M10 236H44M4 262H34M14 288H40"/></g>
+  <use href="#dfly" x="22" y="140" width="366" height="250"/>
+  <g fill="#ffe27a"><use href="#spark" x="40" y="70" width="26" height="26"/><use href="#spark" x="320" y="60" width="30" height="30"/><use href="#spark" x="350" y="300" width="20" height="20"/><use href="#spark" x="70" y="370" width="18" height="18"/><use href="#spark" x="200" y="60" width="16" height="16"/></g>
+  <g fill="#fff"><use href="#spark" x="150" y="110" width="14" height="14"/><use href="#spark" x="280" y="380" width="14" height="14"/><use href="#spark" x="30" y="170" width="12" height="12"/></g>
+</svg>
+</template>
+
+<!-- 4: pulled to the tiny sandcastle palace -->
+<template id="scene4">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Dragonfly Max being pulled through the air towards a little palace made of mud and sand">
+  <rect width="400" height="500" fill="url(#day)"/>
+  <g fill="#fff" opacity=".9"><ellipse cx="300" cy="70" rx="44" ry="16"/><ellipse cx="324" cy="60" rx="26" ry="16"/><ellipse cx="70" cy="230" rx="36" ry="12"/></g>
+  <path d="M0 400Q100 370 200 392T400 384V500H0Z" fill="#9fd384"/>
+  <path d="M0 458Q200 440 400 460V500H0Z" fill="#e3c98f"/>
+  <g fill="#cfa86a" stroke="#9c6b3c" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M104 462V336H112V326H120V336H128V326H136V336H144V462Z"/>
+    <path d="M256 462V336H264V326H272V336H280V326H288V336H296V462Z"/>
+    <path d="M128 462V384H272V462Z"/>
+    <path d="M172 384V300H180V290H190V300H200V290H210V300H220V290H228V384Z"/>
+  </g>
+  <path d="M104 366H144M256 366H296M128 414H272M172 340H228M104 420H144M256 420H296" stroke="#9c6b3c" stroke-width="5" opacity=".55"/>
+  <path d="M184 462V430Q200 408 216 430V462Z" fill="#6e4425"/>
+  <path d="M116 360V350Q124 342 132 350V360Z M268 360V350Q276 342 284 350V360Z M192 336V326Q200 318 208 326V336Z" fill="#6e4425"/>
+  <g fill="#9c6b3c" opacity=".5"><circle cx="150" cy="400" r="2"/><circle cx="240" cy="440" r="2"/><circle cx="160" cy="445" r="2"/><circle cx="250" cy="395" r="2"/><circle cx="118" cy="440" r="2"/><circle cx="284" cy="446" r="2"/></g>
+  <path d="M200 290V262M124 326V306M276 326V306" stroke="#6e4425" stroke-width="2.5"/>
+  <path d="M200 262L222 270L200 278Z M124 306L140 312L124 318Z M276 306L292 312L276 318Z" fill="#d8402f"/>
+  <path d="M-4 500Q14 400 6 300Q34 390 28 500Z" fill="#4fa356"/><path d="M20 500Q36 420 56 350Q52 430 50 500Z" fill="#3e8d47"/>
+  <path d="M404 500Q384 410 394 320Q366 400 372 500Z" fill="#4fa356"/>
+  <path d="M352 500V380" stroke="#3e8d47" stroke-width="6"/>
+  <g fill="#fff" stroke="#e6e0d0"><ellipse cx="352" cy="352" rx="10" ry="22"/><ellipse cx="352" cy="352" rx="10" ry="22" transform="rotate(45 352 374)"/><ellipse cx="352" cy="352" rx="10" ry="22" transform="rotate(90 352 374)"/><ellipse cx="352" cy="352" rx="10" ry="22" transform="rotate(-45 352 374)"/><ellipse cx="352" cy="352" rx="10" ry="22" transform="rotate(-90 352 374)"/></g>
+  <circle cx="352" cy="374" r="11" fill="#ffd23f"/>
+  <path d="M170 168Q300 160 270 236Q246 290 206 276" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="2 12" stroke-linecap="round"/>
+  <path d="M206 276l14-10M206 276l16 6" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.5"><path d="M270 196q14-8 8-20q-10-6-16 4"/><path d="M240 250q12 4 18-6"/></g>
+  <use href="#dfly" x="30" y="96" width="160" height="109"/>
+</svg>
+</template>
+
+<!-- 5: meeting the Bug King -->
+<template id="scene5">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Inside the palace, the Bug King, a ladybird in a red vest, blue shirt and green pants, asks dragonfly Max who he is">
+  <rect width="400" height="500" fill="url(#room)"/>
+  <path d="M30 380V170Q80 110 130 170V380Z" fill="#e2bf82"/>
+  <path d="M50 230V180Q80 140 110 180V230Z" fill="#9fd8f2"/><path d="M80 150V230M50 200H110" stroke="#c99a5e" stroke-width="4"/>
+  <rect x="140" y="40" width="40" height="110" fill="#d8402f"/><path d="M140 150L160 136L180 150Z" fill="url(#room)"/><circle cx="160" cy="84" r="9" fill="#f2c230"/>
+  <rect x="356" y="40" width="40" height="110" fill="#d8402f"/><path d="M356 150L376 136L396 150Z" fill="url(#room)"/><circle cx="376" cy="84" r="9" fill="#f2c230"/>
+  <rect y="380" width="400" height="120" fill="#c99a5e"/>
+  <ellipse cx="230" cy="440" rx="170" ry="34" fill="#b8352b"/><ellipse cx="230" cy="440" rx="150" ry="26" fill="none" stroke="#f2c230" stroke-width="3" stroke-dasharray="8 6"/>
+  <path d="M246 412V230Q300 170 354 230V412Z" fill="#e2b23b" stroke="#b68518" stroke-width="4"/>
+  <path d="M262 400V244Q300 200 338 244V400Z" fill="#d8402f"/>
+  <circle cx="300" cy="196" r="8" fill="#d8402f" stroke="#b68518" stroke-width="3"/>
+  <use href="#king" x="236" y="226" width="128" height="192"/>
+  <use href="#dfly" x="-4" y="252" width="216" height="147"/>
+  <path d="M250 156Q250 112 302 112Q354 112 354 154Q354 190 306 192L292 214L290 190Q250 186 250 156Z" fill="#fff" stroke="#2a2233" stroke-width="3" stroke-linejoin="round"/>
+  <text x="302" y="172" text-anchor="middle" font-family="Grandstander, sans-serif" font-weight="800" font-size="56" fill="#d8402f">?</text>
+</svg>
+</template>
+
+<!-- 6: a snack of greenflies, pollen and water droplets -->
+<template id="scene6">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="The Bug King offers Max greenflies, pollen and a small glass of water droplets">
+  <rect width="400" height="500" fill="url(#room)"/>
+  <path d="M150 300V130Q200 70 250 130V300Z" fill="#e2bf82"/>
+  <path d="M170 190V140Q200 104 230 140V190Z" fill="#9fd8f2"/>
+  <rect y="430" width="400" height="70" fill="#c99a5e"/>
+  <use href="#king" x="238" y="196" width="138" height="207"/>
+  <use href="#dfly" x="-6" y="236" width="210" height="143"/>
+  <rect x="16" y="364" width="368" height="20" rx="6" fill="#8b5a2b"/>
+  <path d="M24 384H376L366 444H34Z" fill="#5cae5a"/>
+  <path d="M24 384H376" stroke="#3e8d47" stroke-width="3"/>
+  <g fill="#3e8d47" opacity=".6"><circle cx="80" cy="410" r="6"/><circle cx="160" cy="420" r="6"/><circle cx="240" cy="408" r="6"/><circle cx="320" cy="420" r="6"/></g>
+  <path d="M206 364C214 346 270 340 300 352C276 368 228 370 206 364Z" fill="#7fc25e" stroke="#4f9a3f" stroke-width="2"/>
+  <g>
+    <ellipse cx="236" cy="352" rx="7" ry="5" fill="#8fd14f" stroke="#4f9a3f"/><ellipse cx="236" cy="347" rx="4" ry="2.5" fill="#fff" opacity=".85"/><circle cx="242" cy="351" r="1.3" fill="#1b1b1b"/>
+    <ellipse cx="256" cy="354" rx="7" ry="5" fill="#8fd14f" stroke="#4f9a3f"/><ellipse cx="256" cy="349" rx="4" ry="2.5" fill="#fff" opacity=".85"/><circle cx="262" cy="353" r="1.3" fill="#1b1b1b"/>
+    <ellipse cx="276" cy="352" rx="7" ry="5" fill="#8fd14f" stroke="#4f9a3f"/><ellipse cx="276" cy="347" rx="4" ry="2.5" fill="#fff" opacity=".85"/><circle cx="282" cy="351" r="1.3" fill="#1b1b1b"/>
+    <ellipse cx="246" cy="343" rx="6" ry="4.5" fill="#8fd14f" stroke="#4f9a3f"/><circle cx="251" cy="342" r="1.2" fill="#1b1b1b"/>
+  </g>
+  <path d="M312 364Q312 340 336 340Q360 340 360 364Z" fill="#a8774a"/>
+  <g fill="#ffd23f"><circle cx="326" cy="338" r="6"/><circle cx="338" cy="334" r="7"/><circle cx="350" cy="339" r="6"/><circle cx="332" cy="328" r="5"/><circle cx="344" cy="327" r="5"/><circle cx="338" cy="320" r="4"/></g>
+  <g fill="#ffe680"><circle cx="322" cy="344" r="2"/><circle cx="356" cy="346" r="2"/></g>
+  <path d="M152 318L156 364H180L184 318Z" fill="#cdeffd" fill-opacity=".6" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+  <g fill="#3d9cff"><path d="M162 344q4 6 0 9q-4-3 0-9Z"/><path d="M172 336q4 6 0 9q-4-3 0-9Z"/><path d="M168 350q4 6 0 9q-4-3 0-9Z"/></g>
+  <g fill="#3d9cff" opacity=".8"><path d="M158 300q4 6 0 9q-4-3 0-9Z"/><path d="M176 292q4 6 0 9q-4-3 0-9Z"/></g>
+</svg>
+</template>
+
+<!-- 7: butterflies taste with their feet, fireflies light up their bottoms -->
+<template id="scene7">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Quiz pictures: a butterfly tasting a flower with its feet, and a firefly glowing from its bottom, with the Bug King asking questions">
+  <rect width="400" height="500" fill="#fbe3a5"/>
+  <g stroke="#fff3cf" stroke-width="18" opacity=".7"><path d="M200 380L200 -20M200 380L-40 120M200 380L440 120M200 380L60 -20M200 380L340 -20"/></g>
+  <circle cx="108" cy="140" r="92" fill="#cdeffd" stroke="#fff" stroke-width="6"/>
+  <path d="M108 232V176" stroke="#4f9a3f" stroke-width="5"/>
+  <path d="M108 214q-20-6-26-22q18 0 26 14Z" fill="#5cae5a"/>
+  <g fill="#ff8fb8"><circle cx="96" cy="164" r="11"/><circle cx="120" cy="164" r="11"/><circle cx="96" cy="186" r="11"/><circle cx="120" cy="186" r="11"/><circle cx="108" cy="158" r="11"/><circle cx="108" cy="192" r="11"/></g>
+  <circle cx="108" cy="175" r="10" fill="#ffd23f"/>
+  <path d="M104 132C86 92 46 92 52 120C56 140 84 140 104 136Z" fill="#ff8c42" stroke="#7a3b1a" stroke-width="2"/>
+  <path d="M104 140C82 146 64 166 78 174C90 180 100 160 104 146Z" fill="#ffb347" stroke="#7a3b1a" stroke-width="2"/>
+  <path d="M112 132C130 92 170 92 164 120C160 140 132 140 112 136Z" fill="#ff8c42" stroke="#7a3b1a" stroke-width="2"/>
+  <path d="M112 140C134 146 152 166 138 174C126 180 116 160 112 146Z" fill="#ffb347" stroke="#7a3b1a" stroke-width="2"/>
+  <g fill="#fff"><circle cx="70" cy="114" r="5"/><circle cx="146" cy="114" r="5"/><circle cx="84" cy="164" r="3"/><circle cx="132" cy="164" r="3"/></g>
+  <ellipse cx="108" cy="142" rx="5" ry="20" fill="#3a2a22"/>
+  <circle cx="108" cy="118" r="6.5" fill="#3a2a22"/>
+  <path d="M105 113Q98 98 92 96M111 113Q118 98 124 96" stroke="#3a2a22" stroke-width="2" fill="none"/>
+  <path d="M104 158L100 168M112 158L116 168M106 160L106 170M110 160L110 170" stroke="#3a2a22" stroke-width="2"/>
+  <g fill="#d8402f"><use href="#spark" x="84" y="168" width="10" height="10"/><use href="#spark" x="122" y="168" width="10" height="10"/></g>
+  <circle cx="294" cy="140" r="92" fill="#1d2a5a" stroke="#fff" stroke-width="6"/>
+  <g fill="#fff6c8"><use href="#spark" x="236" y="80" width="10" height="10"/><use href="#spark" x="336" y="96" width="8" height="8"/><use href="#spark" x="260" y="196" width="7" height="7"/></g>
+  <circle cx="320" cy="168" r="44" fill="url(#bugglow)"/>
+  <ellipse cx="282" cy="118" rx="22" ry="9" fill="#e9f6ff" fill-opacity=".7" transform="rotate(-30 282 118)"/>
+  <ellipse cx="296" cy="116" rx="20" ry="8" fill="#e9f6ff" fill-opacity=".7" transform="rotate(-60 296 116)"/>
+  <ellipse cx="298" cy="146" rx="26" ry="13" fill="#6b4a2b" transform="rotate(35 298 146)"/>
+  <ellipse cx="318" cy="164" rx="12" ry="10" fill="#fffb9a"/>
+  <circle cx="276" cy="128" r="11" fill="#d8402f"/>
+  <circle cx="272" cy="126" r="3.5" fill="#fff"/><circle cx="271" cy="126" r="1.8" fill="#1b1b1b"/>
+  <path d="M270 119Q258 100 250 100M276 117Q272 98 266 92" stroke="#3a2a22" stroke-width="2" fill="none"/>
+  <circle cx="232" cy="164" r="4" fill="#fffb9a"/><circle cx="350" cy="208" r="3.5" fill="#fffb9a"/>
+  <use href="#king" x="120" y="258" width="160" height="240"/>
+  <g fill="#d8402f" font-family="Grandstander, sans-serif" font-weight="800"><text x="46" y="330" font-size="54">?</text><text x="320" y="320" font-size="44">?</text></g>
+  <use href="#dfly" x="250" y="380" width="150" height="102"/>
+</svg>
+</template>
+
+<!-- 8: ants and grasshoppers, and a well done -->
+<template id="scene8">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="An ant carrying a crumb bigger than itself, a grasshopper with ears on its front legs, and the amazed Bug King with confetti">
+  <rect width="400" height="500" fill="url(#day)"/>
+  <path d="M0 378Q200 356 400 380V500H0Z" fill="#a8d07c"/>
+  <path d="M0 450Q200 432 400 452V500H0Z" fill="#94c26a"/>
+  <g>
+    <rect x="14" y="296" width="140" height="64" rx="18" fill="#e7b766" stroke="#b9853a" stroke-width="3"/>
+    <g fill="#b9853a"><circle cx="40" cy="318" r="3"/><circle cx="74" cy="336" r="3"/><circle cx="110" cy="316" r="3"/><circle cx="130" cy="342" r="3"/><circle cx="56" cy="346" r="3"/></g>
+    <g stroke="#3a2a22" stroke-width="3" stroke-linecap="round" fill="none">
+      <path d="M58 404L48 428M64 404L66 430M92 402L86 428M98 402L104 428M118 400L128 424M114 400L118 426"/>
+      <path d="M118 386L114 360M104 390L92 360"/>
+      <path d="M128 378Q134 360 148 356M132 380Q144 368 156 370"/>
+    </g>
+    <ellipse cx="62" cy="398" rx="22" ry="16" fill="#3a2a22"/>
+    <ellipse cx="96" cy="396" rx="12" ry="9" fill="#3a2a22"/>
+    <circle cx="124" cy="388" r="14" fill="#3a2a22"/>
+    <circle cx="130" cy="384" r="4.5" fill="#fff"/><circle cx="131.5" cy="384.5" r="2.2" fill="#1b1b1b"/>
+    <path d="M124 396Q130 400 136 395" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  <g>
+    <path d="M262 404L300 360L330 410" stroke="#4f9a3f" stroke-width="9" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="296" cy="392" rx="58" ry="17" fill="#6cc04a" stroke="#4f9a3f" stroke-width="2.5" transform="rotate(-8 296 392)"/>
+    <path d="M252 396L342 380" stroke="#4f9a3f" stroke-width="2" opacity=".6"/>
+    <path d="M248 404L240 432M262 406L262 432" stroke="#4f9a3f" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="246" cy="418" r="5" fill="#ffd23f" stroke="#b68518" stroke-width="1.5"/>
+    <g fill="none" stroke="#d8402f" stroke-width="2.5" stroke-linecap="round"><path d="M232 410q-6 8 0 16"/><path d="M224 404q-10 14 0 28"/></g>
+    <ellipse cx="236" cy="388" rx="20" ry="16" fill="#7ad152" stroke="#4f9a3f" stroke-width="2.5"/>
+    <circle cx="230" cy="382" r="6" fill="#fff"/><circle cx="228" cy="382" r="3" fill="#1b1b1b"/>
+    <path d="M222 394Q228 398 234 396" stroke="#2f6b2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M238 374Q236 330 270 300M244 374Q250 334 290 316" stroke="#4f9a3f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </g>
+  <use href="#king" x="146" y="70" width="108" height="162"/>
+  <g stroke="#ffd84a" stroke-width="4" stroke-linecap="round"><path d="M140 96l-12-10M136 130h-18M260 96l12-10M264 130h18"/></g>
+  <g>
+    <rect x="40" y="60" width="10" height="6" fill="#d8402f" transform="rotate(30 45 63)"/>
+    <rect x="90" y="140" width="10" height="6" fill="#3c74d6" transform="rotate(-20 95 143)"/>
+    <rect x="320" y="70" width="10" height="6" fill="#3e9a4a" transform="rotate(50 325 73)"/>
+    <rect x="350" y="170" width="10" height="6" fill="#d8402f" transform="rotate(-40 355 173)"/>
+    <rect x="300" y="240" width="10" height="6" fill="#e8b23a" transform="rotate(10 305 243)"/>
+    <rect x="70" y="230" width="10" height="6" fill="#8e5bc4" transform="rotate(70 75 233)"/>
+    <rect x="190" y="30" width="10" height="6" fill="#e8692e" transform="rotate(-15 195 33)"/>
+    <rect x="30" y="180" width="10" height="6" fill="#e8b23a" transform="rotate(25 35 183)"/>
+  </g>
+  <g fill="#ffd84a"><use href="#spark" x="96" y="40" width="24" height="24"/><use href="#spark" x="290" y="120" width="26" height="26"/><use href="#spark" x="40" y="110" width="16" height="16"/><use href="#spark" x="340" y="30" width="18" height="18"/></g>
+</svg>
+</template>
+
+<!-- 9: "buggada!" -->
+<template id="scene9">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="The Bug King waves his hands and shouts buggada, and Max turns back into a boy holding the magical leaf as his wings fade away">
+  <rect width="400" height="500" fill="url(#magic)"/>
+  <g stroke="#fff3c4" stroke-width="16" opacity=".3" stroke-linecap="round"><path d="M240 330L490 330M240 330L457 455M240 330L365 547M240 330L240 580M240 330L115 547M240 330L23 455M240 330L-10 330M240 330L23 205M240 330L115 113M240 330L240 80M240 330L365 113M240 330L457 205"/></g>
+  <text x="200" y="104" text-anchor="middle" font-family="Grandstander, sans-serif" font-weight="800" font-size="60" fill="#ffd84a" stroke="#5a2d9a" stroke-width="6" paint-order="stroke" transform="rotate(-6 200 90)">buggada!</text>
+  <g fill="#fff" fill-opacity=".14" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="5 6">
+    <ellipse cx="266" cy="270" rx="16" ry="58" transform="rotate(-40 290 330)"/>
+    <ellipse cx="300" cy="270" rx="16" ry="58" transform="rotate(30 290 330)"/>
+  </g>
+  <use href="#max" x="196" y="250" width="136" height="231"/>
+  <g transform="rotate(-20 312 400)"><use href="#leaf" x="276" y="364" width="72" height="72"/></g>
+  <use href="#king" x="-14" y="276" width="140" height="210"/>
+  <path d="M96 352Q150 300 214 330" fill="none" stroke="#ffe27a" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>
+  <path d="M14 352Q0 300 30 250" fill="none" stroke="#ffe27a" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>
+  <g fill="#ffe27a"><use href="#spark" x="96" y="330" width="22" height="22"/><use href="#spark" x="2" y="330" width="20" height="20"/><use href="#spark" x="150" y="296" width="16" height="16"/><use href="#spark" x="20" y="236" width="14" height="14"/><use href="#spark" x="340" y="200" width="22" height="22"/><use href="#spark" x="180" y="420" width="14" height="14"/></g>
+  <g fill="#fff"><use href="#spark" x="230" y="200" width="16" height="16"/><use href="#spark" x="340" y="300" width="14" height="14"/><use href="#spark" x="60" y="150" width="14" height="14"/><use href="#spark" x="330" y="140" width="10" height="10"/></g>
+</svg>
+</template>
+
+<!-- 10: home in bed, and the leaf is glowing -->
+<template id="scene10">
+<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Max lying in his own bed at night, staring at the blue and gold leaf glowing on his bedside table">
+  <rect width="400" height="500" fill="#2c2f63"/>
+  <g fill="#3a3e7a"><use href="#spark" x="210" y="40" width="12" height="12"/><use href="#spark" x="380" y="230" width="12" height="12"/><use href="#spark" x="20" y="210" width="12" height="12"/><use href="#spark" x="200" y="200" width="12" height="12"/></g>
+  <rect x="40" y="56" width="136" height="124" rx="6" fill="#f2e2c0"/>
+  <rect x="50" y="66" width="116" height="104" fill="#121c45"/>
+  <circle cx="132" cy="96" r="16" fill="#fff1b8"/><circle cx="140" cy="90" r="14" fill="#121c45"/>
+  <g fill="#fff6c8"><use href="#spark" x="66" y="80" width="10" height="10"/><use href="#spark" x="92" y="130" width="8" height="8"/><use href="#spark" x="140" y="140" width="7" height="7"/></g>
+  <path d="M108 66V170M50 118H166" stroke="#f2e2c0" stroke-width="5"/>
+  <rect x="262" y="70" width="104" height="76" rx="4" fill="#e8b23a"/>
+  <rect x="270" y="78" width="88" height="60" fill="#cdeffd"/>
+  <use href="#dfly" x="272" y="84" width="84" height="57"/>
+  <rect y="400" width="400" height="100" fill="#6b4a3a"/>
+  <path d="M0 430H400M0 466H400" stroke="#5a3d30" stroke-width="2"/>
+  <ellipse cx="250" cy="462" rx="130" ry="22" fill="#8e5bc4" opacity=".85"/>
+  <circle cx="58" cy="284" r="90" fill="url(#glow)"/>
+  <rect x="18" y="330" width="80" height="94" rx="4" fill="#a0703f"/>
+  <rect x="10" y="322" width="96" height="12" rx="3" fill="#b8834c"/>
+  <circle cx="58" cy="376" r="4" fill="#f2c230"/>
+  <g transform="rotate(-25 58 288)"><use href="#leaf" x="14" y="244" width="88" height="88"/></g>
+  <g fill="#ffe27a"><use href="#spark" x="24" y="236" width="14" height="14"/><use href="#spark" x="90" y="256" width="12" height="12"/><use href="#spark" x="70" y="226" width="9" height="9"/></g>
+  <rect x="110" y="250" width="26" height="176" rx="8" fill="#8b5a2b"/>
+  <rect x="366" y="304" width="22" height="122" rx="8" fill="#8b5a2b"/>
+  <rect x="128" y="350" width="244" height="60" fill="#7a4b2a"/>
+  <ellipse cx="172" cy="332" rx="38" ry="18" fill="#fff"/>
+  <circle cx="182" cy="318" r="22" fill="#f3c6a0"/>
+  <path d="M160 318Q158 294 182 294Q206 294 204 314Q198 304 190 306Q182 300 174 306Q166 304 160 318Z" fill="#6b3e1f"/>
+  <circle cx="171" cy="318" r="5" fill="#fff"/><circle cx="189" cy="318" r="5" fill="#fff"/>
+  <circle cx="168.5" cy="318" r="2.8" fill="#2a1a10"/><circle cx="186.5" cy="318" r="2.8" fill="#2a1a10"/>
+  <ellipse cx="181" cy="330" rx="3.5" ry="4.5" fill="#7a3b22"/>
+  <path d="M146 336H372V404Q260 412 146 404Z" fill="#3a7bd5"/>
+  <rect x="146" y="332" width="226" height="16" rx="6" fill="#8fb8f0"/>
+  <g fill="#ffd84a" opacity=".85"><use href="#spark" x="200" y="360" width="14" height="14"/><use href="#spark" x="260" y="376" width="12" height="12"/><use href="#spark" x="320" y="358" width="14" height="14"/><use href="#spark" x="230" y="388" width="9" height="9"/><use href="#spark" x="296" y="390" width="9" height="9"/></g>
+  <circle cx="156" cy="340" r="7" fill="#f3c6a0"/>
+</svg>
+</template>
+
+<template id="coverArt">
+<svg viewBox="0 0 400 300" role="img" aria-label="Max the dragonfly flying above the glowing blue and gold leaf">
+  <circle cx="200" cy="200" r="120" fill="url(#glow)" opacity=".7"/>
+  <g transform="rotate(20 200 230)"><use href="#leaf" x="150" y="180" width="100" height="100"/></g>
+  <use href="#dfly" x="60" y="40" width="280" height="190"/>
+  <g fill="#ffd84a"><use href="#spark" x="40" y="40" width="22" height="22"/><use href="#spark" x="340" y="70" width="26" height="26"/><use href="#spark" x="320" y="230" width="16" height="16"/><use href="#spark" x="60" y="220" width="14" height="14"/></g>
+  <g fill="#fff"><use href="#spark" x="180" y="10" width="12" height="12"/><use href="#spark" x="110" y="260" width="10" height="10"/></g>
+</svg>
+</template>
+
+<template id="endArt">
+<svg viewBox="-50 -50 100 100" aria-hidden="true"><g transform="rotate(20)"><use href="#leaf" x="-50" y="-50" width="100" height="100"/></g></svg>
+</template>
+
+<main class="app">
+  <div class="stage"><div class="book" id="book" aria-live="polite"></div></div>
+  <div class="controls">
+    <button id="prev" type="button" aria-label="Previous page">&#8592; Back</button>
+    <span class="label" id="label">Cover</span>
+    <button id="next" type="button" aria-label="Next page">Next &#8594;</button>
+  </div>
+  <p class="hint">Tap the page, swipe, or use the arrow keys to turn</p>
+</main>
+
+<script>
+(function(){
+const story = [
+  ["Once upon a time, there was a boy called Max who loved adventures.",
+   "Max and his family were on a camping trip. Max and his dad collected wood and made a cosy fire. The family gathered around it and enjoyed their dinner. They ate burgers filled with meat and cheese as well as marshmallows, which were pink and white."],
+  ["The next morning, Max went to explore the forest. There he spotted something strange on the ground. It was a glowing blue and gold leaf. Suddenly, a mysterious force pulled his foot towards it and made him step on the leaf."],
+  ["His whole body began to tingle.In a flash, Max transformed into a dragonfly! He had spiky legs, enormous googly eyes and a scaly body. Max was frightened. He didn’t know how to get back to his tent or turn into a human again. Then he realised something amazing: he could fly!"],
+  ["He spread his wings and flew. Suddenly, an invisible force pulled him towards a little palace made of mud and sand, like a tiny sandcastle.",
+   "Inside lived the Bug King."],
+  ["The Bug King was a ladybird wearing a red vest, a blue shirt and green pants.",
+   "“Who are you? And what are you doing here?” he asked.",
+   "Max explained how he had stepped on the glowing blue-and-gold leaf and turned into a dragonfly. He begged him to help him become human again so he could return to his family.",
+   "“I can help you,” said the Bug King, “but only if you answer my questions about bugs.”"],
+  ["Max felt confident. He had learned about bugs at school a couple of days earlier with Mr Top.",
+   "The Bug King politely offered Max some food, which was greenflies, pollen and a small glass of water droplets. Max wasn’t sure what dragonflies ate, but he thanked him and drank the water droplets."],
+  ["“Let’s begin!” said the Bug King.",
+   "“Which bug can taste with its feet?”",
+   "“A butterfly!” answered Max.",
+   "“Which body part do fireflies use to make light?”",
+   "“Their bottom!” Max replied."],
+  ["“Which bug can carry something heavier than its own body weight?”",
+   "“An ant!”",
+   "“Which insect has ears on its front legs?”",
+   "“A grasshopper!” Max answered again.",
+   "The Bug King was amazed.",
+   "“Well done, Max! You answered all my questions correctly. You really are clever!”"],
+  ["“If you ever want to visit the Bug World again, all you have to do is step on this leaf,” the Bug king said, handing Max the magical leaf.",
+   "The Bug King waved his hands and shouted his magical spell:",
+   "“buggada!”",
+   "Max could now feel his hands and legs but felt sad that his wings had disappeared."],
+  ["But as he looked around he found himself lying in his own bed. Was it all just a dream?, he wondered. He pulled the covers over himself and was about to go back to sleep when he noticed something glowing. It was the blue-and-gold leaf!",
+   "Max stared at it in surprise. Maybe it hadn’t been a dream after all."]
+];
+
+const tpl = id => document.getElementById(id).innerHTML;
+function coverFace(el){
+  el.classList.add('cover');
+  el.innerHTML = '<h1>The Opposite World</h1><div class="art">'+tpl('coverArt')+'</div><div class="by">By Ved</div>';
+}
+function picFace(el,i){ el.innerHTML = '<div class="pic">'+tpl('scene'+(i+1))+'</div>'; }
+function txtFace(el,i){
+  const t = document.createElement('div'); t.className='txt';
+  const w = document.createElement('div'); w.className='words';
+  story[i].forEach((s,j)=>{ const p=document.createElement('p'); p.textContent=s; if(i===0&&j===0)p.className='first'; w.appendChild(p); });
+  const f = document.createElement('div'); f.className='folio'; f.textContent = i+1;
+  t.append(w,f); el.appendChild(t);
+}
+function endFace(el){
+  el.classList.add('end');
+  el.innerHTML = '<div class="art">'+tpl('endArt')+'</div><h2>The End</h2><p>A story by Ved</p>';
+}
+// faces in reading order: cover, then picture + words for each page, then the end
+const faces = [ el=>coverFace(el) ];
+story.forEach((_,i)=>{ faces.push(el=>picFace(el,i)); faces.push(el=>txtFace(el,i)); });
+faces.push(el=>endFace(el));
+const N = faces.length; // 22
+
+const book = document.getElementById('book');
+const prevB = document.getElementById('prev'), nextB = document.getElementById('next'), label = document.getElementById('label');
+let mode = null, sheets = [], k = 0, faceIdx = 0, pw = 0, ph = 0;
+
+function fitText(){
+  book.querySelectorAll('.words').forEach(w=>{
+    const box = w.parentElement;
+    let fs = Math.min(box.clientWidth*0.058, box.clientHeight*0.05, 30);
+    w.style.setProperty('--fs', fs+'px');
+    let guard = 0;
+    while(w.scrollHeight > w.clientHeight + 1 && fs > 6 && guard++ < 60){ fs -= 0.5; w.style.setProperty('--fs', fs+'px'); }
+  });
+}
+
+function build(){
+  const vw = window.innerWidth - 32, vh = window.innerHeight - 120;
+  const newMode = 'spread';
+  const r = 0.75;
+  if(newMode==='spread'){ pw = Math.min(vw/2, vh*r, 560); }
+  else { pw = Math.min(vw, vh*r, 560); }
+  pw = Math.floor(pw); ph = Math.floor(pw/r);
+  const changed = newMode !== mode; mode = newMode;
+  book.className = 'book '+mode;
+  book.style.setProperty('--pw', pw+'px'); book.style.setProperty('--ph', ph+'px');
+  book.style.width = (mode==='spread'?2*pw:pw)+'px'; book.style.height = ph+'px';
+  if(changed || !sheets.length){
+    book.innerHTML=''; sheets=[];
+    const count = mode==='spread' ? N/2 : N;
+    for(let s=0;s<count;s++){
+      const sh = document.createElement('div'); sh.className='sheet';
+      const fr = document.createElement('div'); fr.className='face front';
+      const bk = document.createElement('div'); bk.className='face back';
+      if(mode==='spread'){ faces[2*s](fr); faces[2*s+1](bk); }
+      else { faces[s](fr); bk.classList.add('blank'); }
+      sh.append(fr,bk); book.appendChild(sh); sheets.push(sh);
+    }
+    k = mode==='spread' ? Math.ceil(faceIdx/2) : faceIdx;
+    render(true);
+  } else render(true);
+  fitText();
+}
+
+function maxK(){ return mode==='spread' ? sheets.length : sheets.length-1; }
+
+function render(instant){
+  if(instant) sheets.forEach(s=>s.style.transition='none');
+  sheets.forEach((s,i)=>{
+    const f = i < k;
+    s.classList.toggle('flipped', f);
+    s.style.zIndex = f ? i+1 : sheets.length - i;
+    if(mode==='single') s.setAttribute('aria-hidden', i===k ? 'false':'true');
+  });
+  if(mode==='spread'){
+    const shift = k===0 ? -pw/2 : (k===sheets.length ? pw/2 : 0);
+    if(instant) book.style.transition='none';
+    book.style.transform = 'translateX('+shift+'px)';
+  } else book.style.transform='';
+  if(instant){ book.offsetWidth; sheets.forEach(s=>s.style.transition=''); book.style.transition=''; }
+  faceIdx = mode==='spread' ? Math.min(2*k, N-1) : k;
+  prevB.disabled = k===0; nextB.disabled = k===maxK();
+  label.textContent = pageLabel();
+}
+
+function pageLabel(){
+  if(mode==='spread'){
+    if(k===0) return 'Cover';
+    if(k===sheets.length) return 'The End';
+    return 'Page '+k+' of 10';
+  }
+  if(k===0) return 'Cover';
+  if(k===N-1) return 'The End';
+  return 'Page '+Math.ceil(k/2)+' of 10';
+}
+
+function go(d){
+  const nk = Math.max(0, Math.min(maxK(), k+d));
+  if(nk===k) return;
+  const moving = d>0 ? sheets[k] : sheets[nk];
+  moving.style.zIndex = 999;
+  k = nk;
+  sheets.forEach((s,i)=>{ s.classList.toggle('flipped', i<k); if(s!==moving) s.style.zIndex = i<k ? i+1 : sheets.length-i; if(mode==='single') s.setAttribute('aria-hidden', i===k?'false':'true'); });
+  clearTimeout(moving._t);
+  moving._t = setTimeout(()=>{ const i = sheets.indexOf(moving); moving.style.zIndex = i<k ? i+1 : sheets.length-i; }, 900);
+  if(mode==='spread'){
+    const shift = k===0 ? -pw/2 : (k===sheets.length ? pw/2 : 0);
+    book.style.transform = 'translateX('+shift+'px)';
+  }
+  faceIdx = mode==='spread' ? Math.min(2*k, N-1) : k;
+  prevB.disabled = k===0; nextB.disabled = k===maxK();
+  label.textContent = pageLabel();
+}
+
+prevB.addEventListener('click', ()=>go(-1));
+nextB.addEventListener('click', ()=>go(1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); go(1); }
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(-1); }
+});
+let sx=null, sy=null, swiped=false;
+book.addEventListener('pointerdown', e=>{ sx=e.clientX; sy=e.clientY; swiped=false; });
+book.addEventListener('pointerup', e=>{
+  if(sx===null) return;
+  const dx=e.clientX-sx, dy=e.clientY-sy; sx=null;
+  if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)){ swiped=true; go(dx<0?1:-1); }
+});
+book.addEventListener('click', e=>{
+  if(swiped){ swiped=false; return; }
+  const r = book.getBoundingClientRect();
+  const x = (e.clientX - r.left)/r.width;
+  if(mode==='spread'){ go(x>=0.5?1:-1); }
+  else { go(x>=0.35?1:-1); }
+});
+let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(build,120); });
+build();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitText);
+})();
+</script>
+</body>
+</html>
